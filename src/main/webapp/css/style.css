@@ -1,0 +1,138 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.top-bar {
+    background-color: white;
+    padding:25px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.top-logo {
+    height: 90px;
+    width: auto;
+    margin-left: 10px ;
+
+}
+
+
+.top-login.btn{
+    font-size: 16px;
+    padding: 30px 20px;
+    text-decoration: none;
+}
+
+.logo-title h2 {
+    font-weight: bold;
+    color: #222;
+    margin: 0;
+}
+
+/* Navigation Bar Style */
+.custom-navbar {
+    background-color: #007bff; /* Primary blue */
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* Navbar spacing using flex gap */
+.navbar-nav {
+    gap: 60px; /* Adjust spacing between items */
+}
+
+/* Hover effect (optional) */
+.nav-link:hover {
+    color: #d1eaff !important;
+    text-decoration: underline;
+}
+.hero-section {
+    position: relative;
+    height: 100vh;
+    background-image: url('../images/banner-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 50px;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.6); /* Optional white overlay */
+    z-index: 1;
+}
+
+.hero-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 130px;
+    padding-top: 40px;
+}
+
+.hero-content img {
+    width: 540px;
+    height: auto;
+}
+
+.hero-text {
+    max-width: 600px;
+    text-align: left;
+    padding-right: 40px;
+}
+
+.hero-text h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.hero-text p {
+    font-size: 1.1rem;
+}
+.footer-section {
+    background-color: #007bff;
+    color: #fff;
+    padding: 30px 0;
+    border-top: 1px solid #0056b3;
+}
+
+.footer-section h5 {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.footer-section a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.footer-section a:hover {
+    text-decoration: underline;
+}
+
+.footer-section ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.footer-section p {
+    margin-bottom: 8px;
+}
+

@@ -1,0 +1,78 @@
+/* General Layout */
+body {
+    background-color: #f9f9f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.top-bar {
+    background-color: #0a4275;
+    color: white;
+    padding: 10px 0;
+}
+
+.top-logo {
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+}
+
+/* Card Layout */
+.card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: none;
+}
+
+.profile-box {
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+/* Profile Image */
+.profile-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Buttons */
+.btn-primary, .btn-warning, .btn-danger, .btn-secondary {
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-warning:hover {
+    background-color: #e69500;
+}
+
+.btn-danger:hover {
+    background-color: #b02a37;
+}
+
+.btn-secondary:hover {
+    background-color: #6c757d;
+}
+
+/* Form Styling */
+form .form-group label {
+    font-weight: 500;
+}
+
+form input, form select {
+    border-radius: 6px;
+}
+
+/* Form Buttons */
+form .btn {
+    min-width: 100px;
+}
+
+form .btn + .btn {
+    margin-left: 10px;
+}

@@ -2,6 +2,13 @@
 body {
     font-family: sans-serif;
     margin: 20px;
+    /* Add background image to the body */
+    background-image: url('../images/banner-bg.jpg'); /* Replace with your image URL */
+    background-size: cover; /* Cover the entire element */
+    background-repeat: no-repeat; /* Prevent image repetition */
+    background-position: center center; /* Center the image */
+    /* Optional:  */
+    /* background-attachment: fixed;  To make the background image fixed */
 }
 
 .sidebar {
@@ -9,6 +16,8 @@ body {
     float: left;
     padding-right: 20px;
     border-right: 1px solid #ccc;
+    /* Make sidebar background transparent or semi-transparent */
+    background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
 }
 
 .sidebar h2 {
@@ -40,6 +49,10 @@ body {
 
 .content {
     margin-left: 220px;
+    /* Make content background transparent or semi-transparent */
+    background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
+    padding: 20px; /* Add padding to the content area */
+    border-radius: 8px; /* Add border radius for better look */
 }
 
 .module-title {
@@ -121,7 +134,8 @@ tbody td:last-child {
 
 #registration-form select {
     appearance: none; /* Remove default arrow */
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+    /* Corrected: Use a standard URL, not a relative path in this context */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23333' d='M2 0L0 2h4z'%3E%3C/path%3E%3C/svg%3E"); /* Base64 encoded SVG for the dropdown arrow */
     background-repeat: no-repeat;
     background-position: right 8px center;
     background-size: 16px;

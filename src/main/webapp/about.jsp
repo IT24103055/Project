@@ -8,6 +8,7 @@
 
     <!-- Bootstrap & Font Awesome -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <style>
@@ -17,36 +18,6 @@
             color: #343a40;
         }
 
-        .navbar {
-            background: linear-gradient(90deg, #0dcaf0, #6f42c1);
-        }
-
-        .navbar-brand, .nav-link {
-            color: #fff !important;
-            font-weight: 500;
-            font-size: 1rem;
-        }
-
-        .navbar-brand:hover, .nav-link:hover {
-            color: #ffeb3b !important;
-        }
-
-        .about-header {
-            background: linear-gradient(135deg, #0dcaf0, #6f42c1);
-            color: white;
-            padding: 60px 20px;
-            text-align: center;
-            border-radius: 0 0 30px 30px;
-        }
-
-        .about-header h1 {
-            font-size: 3.2rem;
-            font-weight: bold;
-        }
-
-        .about-header p {
-            font-size: 1.3rem;
-        }
 
         .icon-card {
             background: linear-gradient(145deg, #ffffff, #f1f1f1);
@@ -113,48 +84,21 @@
         .mission i { color: #6f42c1; }
         .focus i { color: #dc3545; }
 
-        .footer-quote {
-            margin-top: 40px;
-            font-style: italic;
-            font-size: 1.1rem;
-            color: #444;
-        }
-
         footer {
-            background: linear-gradient(90deg, #0dcaf0, #6f42c1);
+
             padding: 20px 0;
             color: #fff;
             text-align: center;
             margin-top: 40px;
         }
+
+
     </style>
 </head>
 <body>
+<jsp:include page="includes/topbar.jsp" />
+<jsp:include page="includes/navbar.jsp" />
 
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" href="index.jsp">MediCare</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a class="nav-link" href="index.jsp">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="doctors.jsp">Doctors</a></li>
-            <li class="nav-item active"><a class="nav-link" href="about.jsp">About Us</a></li>
-            <li class="nav-item"><a class="nav-link" href="feedback.jsp">Feedback</a></li>
-        </ul>
-    </div>
-</nav>
-
-<!-- About Us Header -->
-<div class="about-header">
-    <h1>About MediCare</h1>
-    <p>Empowering Healthcare Through Innovation and Care</p>
-
-
-</div>
 
 <!-- Vision, Mission, Focus -->
 <div class="container mt-5">
@@ -199,10 +143,7 @@
     </div>
 </div>
 
-<!-- Footer -->
-<footer>
-    &copy; 2025 MediCare. All rights reserved.
-</footer>
+<jsp:include page="includes/footer.jsp" />
 
 <!-- Bootstrap Scripts -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

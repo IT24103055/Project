@@ -1,11 +1,5 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: learn
-  Date: 5/4/2025
-  Time: 5:53 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.yourteam.appointment.model.Patient" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,86 +20,69 @@
     </div>
 </div>
 
-<%@ include file="includes/navbar.jsp" %>
+<%@ include file="includes/navbar2.jsp" %>
 
-<!-- Profile and Form Section -->
+<%
+    Patient patient = (Patient) session.getAttribute("user");
+    if (patient == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
+
+<!-- Profile Section -->
 <div class="container mt-5">
     <div class="row">
 
-        <!-- Left Side: Profile Info -->
+        <!-- Left Side: Quick Actions -->
         <div class="col-md-4 d-flex justify-content-center">
             <div class="card text-center p-4 shadow-sm w-100">
                 <img src="images/icon.jpeg" alt="Profile Picture" class="rounded-circle mb-3 profile-img">
-                <h5 class="mb-3">Welcome!!!</h5>
+                <h5 class="mb-3">Welcome, <%= patient.getName() %>!</h5>
                 <a href="editProfile.jsp" class="btn btn-primary btn-block mb-2">Edit Profile</a>
                 <a href="resetPassword.jsp" class="btn btn-warning btn-block mb-2">Reset Password</a>
-                <a href="logout.jsp" class="btn btn-danger btn-block">Logout</a>
+                <a href="LogoutServlet" class="btn btn-danger btn-block">Logout</a>
             </div>
         </div>
 
-        <!-- Right Side: Profile Form -->
+        <!-- Right Side: Patient Info Table -->
         <div class="col-md-8">
             <div class="profile-box shadow-sm p-4">
-                <h4 class="mb-4 font-weight-bold text-center">Patient Registration</h4>
-                <form action="ProfileServlet" method="post">
-                    <div class="form-group">
-                        <label for="fullname">Full Name</label>
-                        <input type="text" class="form-control" id="fullname" name="fullname" required>
-                    </div>
+                <h4 class="mb-4 font-weight-bold text-center">My Profile</h4>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Full Name</th>
+                        <td><%= patient.getName() %></td>
+                    </tr>
+                    <tr>
+                        <th>Email Address</th>
+                        <td><%= patient.getEmail() %></td>
+                    </tr>
+                    <tr>
+                        <th>NIC</th>
+                        <td><%= patient.getNic() %></td>
+                    </tr>
+                    <tr>
+                        <th>Gender</th>
+                        <td><%= patient.getGender() %></td>
+                    </tr>
+                </table>
 
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nic">NIC</label>
-                        <input type="text" class="form-control" id="nic" name="nic" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gender">Gender</label>
-                        <select class="form-control" id="gender" name="gender" required>
-                            <option value="" disabled selected>Select your gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="age">Age</label>
-                        <input type="text" class="form-control" id="age" name="age" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="text" class="form-control" id="phone" name="phone" required placeholder="e.g. 0712345678">
-                    </div>
-
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="submit" class="btn btn-primary">Delete</button>
-                    </div>
-                </form>
+                <!-- Delete Account Button -->
+                <div class="text-right mt-4">
+                    <form action="DeleteAccountServlet" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                        <input type="hidden" name="nic" value="<%= patient.getNic() %>">
+                        <button type="submit" class="btn btn-danger">Delete My Account</button>
+                    </form>
+                </div>
             </div>
         </div>
 
     </div> <!-- End Row -->
 </div> <!-- End Container -->
 
-<%@ include file="includes/footer.jsp" %>
+<%@ include file="includes/footer2.jsp" %>
 
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<script>
-    document.querySelector("form").addEventListener("submit", function (e) {
-        const password = document.getElementById("password");
-        const confirm = document.getElementById("confirm");
-        if (password && confirm && password.value !== confirm.value) {
-            e.preventDefault();
-            alert("Passwords do not match. Please try again.");
-        }
-    });
-</script>
-
 </body>
 </html>

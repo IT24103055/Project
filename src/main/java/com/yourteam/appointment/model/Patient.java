@@ -9,7 +9,7 @@ public class Patient extends User {
         super(name, email, password, nic, gender);
     }
 
-    @Override
+   @Override
     public String toString() {
         return name + "|" + email + "|" + password + "|" + nic + "|" + gender;
     }

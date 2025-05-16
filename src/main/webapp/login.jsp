@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: learn
-  Date: 5/4/2025
-  Time: 3:31 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
@@ -92,7 +85,7 @@
     <div class="container d-flex justify-content-between align-items-center">
         <div class="logo-title d-flex align-items-center">
             <h2 style="margin: 0;">MediCare</h2>
-            <img src="images/medical-heart-logo-icon-vector-260nw-2477158081.webp" alt="Logo" class="top-logo">
+            <img src="images/logo.jpg" alt="Logo" class="top-logo">
         </div>
     </div>
 </div>
@@ -109,12 +102,13 @@
 
 <div class="login-box shadow-sm">
     <h4 class="login-title mb-3">Sign in</h4>
-    <p class="text-muted">Please enter your username or email and password to sign in.</p>
+    <p class="text-muted">Please enter your NIC to sign in.</p>
 
-    <form action="LoginServlet" method="post">
+    <form action="<%= request.getContextPath() %>/LoginServlet" method="post">
+
         <div class="form-group">
-            <label for="username">User Name/ Email / NIC</label>
-            <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username or email" required>
+            <label for="username">NIC</label>
+            <input type="text" class="form-control" id="username" name="nic" placeholder="Enter your NIC" required>
         </div>
 
         <div class="form-group">

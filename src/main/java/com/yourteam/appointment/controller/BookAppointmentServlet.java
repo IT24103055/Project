@@ -23,7 +23,6 @@ public class BookAppointmentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-      
         String username = (String) request.getSession().getAttribute("username");
         String nic = (String) request.getSession().getAttribute("nic");
 
@@ -38,19 +37,26 @@ public class BookAppointmentServlet extends HttpServlet {
         String sessionPath = getServletContext().getRealPath(SESSION_FILE);
         String appointmentPath = getServletContext().getRealPath(APPOINTMENT_FILE);
 
-        // Load all appointments from file
         Appointment[] allAppointments = AppointmentUtil.getAllAppointmentsArray(appointmentPath);
 
-        // Filter appointments for same doctor & date
-        Appointment[] sameSession = new Appointment[100];
-        int sessionCount = 0;
+        // Step 1: collect booking order
+        Appointment[] bookingOrder = new Appointment[100];
+        int bookingCount = 0;
         for (Appointment a : allAppointments) {
             if (a != null && a.getDoctorName().equals(doctorName) && a.getDate().equals(date)) {
-                sameSession[sessionCount++] = a;
+                bookingOrder[bookingCount++] = a;
             }
         }
 
-        // Find session time for doctor
+        Appointment newAppt = new UnpaidAppointment(username, nic, doctorName, specialization, date, urgency, "", 0, fee);
+        bookingOrder[bookingCount++] = newAppt;
+
+        // Step 2: assign time slots based on urgency
+        PriorityQueueX queue = new PriorityQueueX(bookingCount);
+        for (int i = 0; i < bookingCount; i++) {
+            queue.insert(bookingOrder[i]);
+        }
+
         BufferedReader sessionReader = new BufferedReader(new FileReader(sessionPath));
         String line;
         LocalTime startTime = null, endTime = null;
@@ -70,7 +76,6 @@ public class BookAppointmentServlet extends HttpServlet {
             return;
         }
 
-        // Generate 15-min time slots
         String[] timeSlots = new String[100];
         int slotCount = 0;
         LocalTime temp = startTime;
@@ -79,28 +84,16 @@ public class BookAppointmentServlet extends HttpServlet {
             temp = temp.plusMinutes(15);
         }
 
-        // Create new unpaid appointment
-        Appointment newAppt = new UnpaidAppointment(username, nic, doctorName, specialization, date, urgency, "", 0, fee);
-
-        // Use custom priority queue to sort by urgency
-        PriorityQueueX queue = new PriorityQueueX(100);
-        for (int i = 0; i < sessionCount; i++) {
-            queue.insert(sameSession[i]);
-        }
-        queue.insert(newAppt);
-
-        // Assign time slots based on priority
-        Appointment[] updatedSession = new Appointment[slotCount];
-        int i = 0;
-        while (!queue.isEmpty() && i < slotCount) {
+        Appointment[] scheduled = new Appointment[bookingCount];
+        int t = 0;
+        while (!queue.isEmpty() && t < slotCount) {
             Appointment a = queue.remove();
-            a.setTimeSlot(timeSlots[i]);
-            a.setQueueNumber(i + 1);
-            updatedSession[i] = a;
-            i++;
+            a.setTimeSlot(timeSlots[t]);
+            a.setQueueNumber(t + 1);
+            scheduled[t] = a;
+            t++;
         }
 
-        // Merge appointments (excluding old session ones)
         Appointment[] finalList = new Appointment[200];
         int f = 0;
         for (Appointment a : allAppointments) {
@@ -108,17 +101,52 @@ public class BookAppointmentServlet extends HttpServlet {
                 finalList[f++] = a;
             }
         }
-        for (int j = 0; j < i; j++) {
-            finalList[f++] = updatedSession[j];
+
+        Appointment[] added = new Appointment[bookingCount];
+        int addedCount = 0;
+
+        for (int i = 0; i < bookingCount; i++) {
+            Appointment booked = bookingOrder[i];
+            for (int j = 0; j < scheduled.length; j++) {
+                Appointment assigned = scheduled[j];
+                if (assigned != null &&
+                        assigned.getUsername().equals(booked.getUsername()) &&
+                        assigned.getNic().equals(booked.getNic()) &&
+                        assigned.getDoctorName().equals(booked.getDoctorName()) &&
+                        assigned.getDate().equals(booked.getDate()) &&
+                        assigned.getUrgency().equals(booked.getUrgency()) &&
+                        !alreadyAdded(added, assigned, addedCount)) {
+
+                    finalList[f++] = assigned;
+                    added[addedCount++] = assigned;
+                    break;
+                }
+            }
         }
 
-        // Sort by timeSlot using bubble sort
         SortUtil.bubbleSort(finalList, f);
-
-        // Save back to file
         AppointmentUtil.saveAppointmentsArray(appointmentPath, finalList, f);
-
-        // Redirect to patient appointment page
         response.sendRedirect("MyAppointmentsServlet");
     }
+
+    private boolean alreadyAdded(Appointment[] added, Appointment appt, int count) {
+        for (int i = 0; i < count; i++) {
+            if (added[i] != null &&
+                    added[i].getUsername().equals(appt.getUsername()) &&
+                    added[i].getNic().equals(appt.getNic()) &&
+                    added[i].getDoctorName().equals(appt.getDoctorName()) &&
+                    added[i].getDate().equals(appt.getDate()) &&
+                    added[i].getUrgency().equals(appt.getUrgency()) &&
+                    added[i].getSpecialization().equals(appt.getSpecialization()) &&
+                    added[i].getTimeSlot().equals(appt.getTimeSlot())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
+
+
+
+

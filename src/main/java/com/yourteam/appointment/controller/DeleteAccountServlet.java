@@ -33,9 +33,9 @@ public class DeleteAccountServlet extends HttpServlet {
                     writer.write(String.join("|",
                             p.getName(),
                             p.getEmail(),
+                            p.getPassword(),
                             p.getNic(),
-                            p.getGender(),
-                            p.getPassword()));
+                            p.getGender()));
                     writer.newLine();
                 }
             }

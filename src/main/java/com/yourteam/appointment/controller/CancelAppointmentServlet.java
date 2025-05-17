@@ -10,7 +10,6 @@ import jakarta.servlet.http.*;
 
 import java.io.*;
 import java.time.LocalTime;
-import java.util.*;
 
 @WebServlet("/CancelAppointmentServlet")
 public class CancelAppointmentServlet extends HttpServlet {
@@ -54,20 +53,24 @@ public class CancelAppointmentServlet extends HttpServlet {
         }
 
         String filePath = getAppointmentFilePath(request);
-        List<Appointment> allAppointments = AppointmentUtil.getAllAppointments(filePath);
+        Appointment[] allAppointments = AppointmentUtil.getAllAppointmentsArray(filePath);
+        Appointment[] updatedAppointments = new Appointment[200];
+        int total = 0;
 
         Appointment canceled = null;
-        Iterator<Appointment> iterator = allAppointments.iterator();
-        while (iterator.hasNext()) {
-            Appointment appt = iterator.next();
-            if (appt.getDoctorName().equals(doctorName)
-                    && appt.getDate().equals(date)
-                    && appt.getTimeSlot().equals(timeSlot)
-                    && appt.getNic().equals(nic)
-                    && !appt.isPaid()) {
-                canceled = appt;
-                iterator.remove();
-                break;
+
+        for (int i = 0; i < allAppointments.length; i++) {
+            Appointment appt = allAppointments[i];
+            if (appt != null) {
+                if (appt.getDoctorName().equals(doctorName)
+                        && appt.getDate().equals(date)
+                        && appt.getTimeSlot().equals(timeSlot)
+                        && appt.getNic().equals(nic)
+                        && !appt.isPaid()) {
+                    canceled = appt;
+                } else {
+                    updatedAppointments[total++] = appt;
+                }
             }
         }
 
@@ -80,13 +83,17 @@ public class CancelAppointmentServlet extends HttpServlet {
             return;
         }
 
-        List<Appointment> sameSessionAppointments = new ArrayList<>();
-        for (Appointment a : allAppointments) {
+        // Find same-session appointments
+        Appointment[] sameSessionAppointments = new Appointment[100];
+        int ssCount = 0;
+        for (int i = 0; i < total; i++) {
+            Appointment a = updatedAppointments[i];
             if (a.getDoctorName().equals(doctorName) && a.getDate().equals(date)) {
-                sameSessionAppointments.add(a);
+                sameSessionAppointments[ssCount++] = a;
             }
         }
 
+        // Get time slots
         LocalTime startTime = null, endTime = null;
         try (BufferedReader sessionReader = new BufferedReader(new FileReader(getSessionFilePath(request)))) {
             String line;
@@ -102,35 +109,46 @@ public class CancelAppointmentServlet extends HttpServlet {
         }
 
         if (startTime != null && endTime != null) {
-            List<String> availableSlots = new ArrayList<>();
+            String[] availableSlots = new String[100];
+            int slotCount = 0;
             LocalTime temp = startTime;
             while (!temp.isAfter(endTime.minusMinutes(15))) {
-                availableSlots.add(temp.toString());
+                availableSlots[slotCount++] = temp.toString();
                 temp = temp.plusMinutes(15);
             }
 
-            // Use custom PriorityQueueX
-            PriorityQueueX queue = new PriorityQueueX(100);
-            for (Appointment a : sameSessionAppointments) {
-                queue.insert(a);
+            // Priority queue logic
+            PriorityQueueX queue = new PriorityQueueX(ssCount);
+            for (int i = 0; i < ssCount; i++) {
+                queue.insert(sameSessionAppointments[i]);
             }
 
-            List<Appointment> updated = new ArrayList<>();
-            int i = 0;
-            while (!queue.isEmpty() && i < availableSlots.size()) {
+            Appointment[] reassigned = new Appointment[ssCount];
+            int index = 0;
+            while (!queue.isEmpty() && index < slotCount) {
                 Appointment a = queue.remove();
-                a.setTimeSlot(availableSlots.get(i));
-                a.setQueueNumber(i + 1);
-                updated.add(a);
-                i++;
+                a.setTimeSlot(availableSlots[index]);
+                a.setQueueNumber(index + 1);
+                reassigned[index] = a;
+                index++;
             }
 
-            // Replace old same-session appointments with updated ones
-            allAppointments.removeIf(a -> a.getDoctorName().equals(doctorName) && a.getDate().equals(date));
-            allAppointments.addAll(updated);
-        }
+            // Remove all old same-session from updatedAppointments
+            Appointment[] finalAppointments = new Appointment[200];
+            int finalCount = 0;
+            for (int i = 0; i < total; i++) {
+                Appointment a = updatedAppointments[i];
+                if (!(a.getDoctorName().equals(doctorName) && a.getDate().equals(date))) {
+                    finalAppointments[finalCount++] = a;
+                }
+            }
 
-        AppointmentUtil.saveAppointments(filePath, allAppointments);
+            for (int i = 0; i < index; i++) {
+                finalAppointments[finalCount++] = reassigned[i];
+            }
+
+            AppointmentUtil.saveAppointmentsArray(filePath, finalAppointments, finalCount);
+        }
 
         if ("main".equals(role) || "standard".equals(role)) {
             response.sendRedirect("payment.jsp");

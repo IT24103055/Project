@@ -32,26 +32,31 @@ public class LoginServlet extends HttpServlet {
         String patientFile = getPatientFilePath(request);
         String adminFile = getAdminFilePath(request);
 
+        // Patient Login
         Patient patient = PatientUtil.authenticate(nic, password, patientFile);
         if (patient != null) {
             HttpSession session = request.getSession();
             session.setAttribute("user", patient);
             session.setAttribute("username", patient.getName());
             session.setAttribute("role", "patient");
+            session.setAttribute("nic", patient.getNic());
             response.sendRedirect("dashboard.jsp");
             return;
         }
 
+        // Admin Login
         Admin admin = AdminUtil.authenticate(nic, password, adminFile);
         if (admin != null) {
             HttpSession session = request.getSession();
             session.setAttribute("user", admin);
             session.setAttribute("username", admin.getName());
-            session.setAttribute("role", "admin");
+            session.setAttribute("role", admin.getRole()); // ✅ Use actual role: main or standard
+            session.setAttribute("nic", admin.getNic());
             response.sendRedirect("AdminDashboard.jsp");
             return;
         }
 
+        // Invalid login
         request.setAttribute("error", "Invalid NIC or password.");
         request.getRequestDispatcher("login.jsp").forward(request, response);
     }

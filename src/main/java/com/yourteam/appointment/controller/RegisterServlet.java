@@ -37,7 +37,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         // Create new patient
-        Patient patient = new Patient(name, email, password, nic, gender);
+        Patient patient = new Patient(name, email,password,nic,gender);
 
         // Write to file
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)))) {

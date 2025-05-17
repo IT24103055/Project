@@ -4,13 +4,16 @@ public class Patient extends User {
 
     public Patient() {
     }
-
     public Patient(String name, String email, String password, String nic, String gender) {
         super(name, email, password, nic, gender);
     }
 
-   @Override
+
+
+    @Override
     public String toString() {
-        return name + "|" + email + "|" + password + "|" + nic + "|" + gender;
+        return name + "|" + email + "|" +password + "|" + nic + "|" + gender;
     }
 }
+
+

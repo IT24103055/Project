@@ -2,6 +2,7 @@ package com.yourteam.appointment.controller;
 
 import com.yourteam.appointment.model.Appointment;
 import com.yourteam.appointment.utils.AppointmentUtil;
+import com.yourteam.appointment.structures.PriorityQueueX;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -25,16 +26,36 @@ public class CancelAppointmentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("role") == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        String role = (String) session.getAttribute("role");
 
         String doctorName = request.getParameter("doctorName");
         String date = request.getParameter("date");
         String timeSlot = request.getParameter("timeSlot");
-        String nic = (String) request.getSession().getAttribute("nic");
+        String nic = request.getParameter("nic");
+
+        if ((nic == null || nic.isEmpty()) && "patient".equals(role)) {
+            nic = (String) session.getAttribute("nic");
+        }
+
+        if (nic == null || doctorName == null || date == null || timeSlot == null) {
+            if ("main".equals(role) || "standard".equals(role)) {
+                response.sendRedirect("payment.jsp");
+            } else {
+                response.sendRedirect("MyAppointmentsServlet");
+            }
+            return;
+        }
 
         String filePath = getAppointmentFilePath(request);
         List<Appointment> allAppointments = AppointmentUtil.getAllAppointments(filePath);
 
-        // Remove the canceled appointment
         Appointment canceled = null;
         Iterator<Appointment> iterator = allAppointments.iterator();
         while (iterator.hasNext()) {
@@ -50,13 +71,15 @@ public class CancelAppointmentServlet extends HttpServlet {
             }
         }
 
-        // If no cancelable appointment was found
         if (canceled == null) {
-            response.sendRedirect("MyAppointmentsServlet");
+            if ("main".equals(role) || "standard".equals(role)) {
+                response.sendRedirect("payment.jsp");
+            } else {
+                response.sendRedirect("MyAppointmentsServlet");
+            }
             return;
         }
 
-        // Get remaining appointments for same doctor and date
         List<Appointment> sameSessionAppointments = new ArrayList<>();
         for (Appointment a : allAppointments) {
             if (a.getDoctorName().equals(doctorName) && a.getDate().equals(date)) {
@@ -64,58 +87,55 @@ public class CancelAppointmentServlet extends HttpServlet {
             }
         }
 
-        // Read session times
-        String sessionFile = getSessionFilePath(request);
-        BufferedReader sessionReader = new BufferedReader(new FileReader(sessionFile));
-        String line;
         LocalTime startTime = null, endTime = null;
-        while ((line = sessionReader.readLine()) != null) {
-            String[] parts = line.split("\\|");
-            if (parts.length >= 6 && parts[1].equalsIgnoreCase(doctorName) && parts[4].equals(date)) {
-                String[] timeRange = parts[5].split("-");
-                startTime = LocalTime.parse(timeRange[0].trim());
-                endTime = LocalTime.parse(timeRange[1].trim());
-                break;
+        try (BufferedReader sessionReader = new BufferedReader(new FileReader(getSessionFilePath(request)))) {
+            String line;
+            while ((line = sessionReader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length >= 6 && parts[1].equalsIgnoreCase(doctorName) && parts[4].equals(date)) {
+                    String[] timeRange = parts[5].split("-");
+                    startTime = LocalTime.parse(timeRange[0].trim());
+                    endTime = LocalTime.parse(timeRange[1].trim());
+                    break;
+                }
             }
         }
-        sessionReader.close();
 
-        // Generate available time slots
-        List<String> availableSlots = new ArrayList<>();
-        LocalTime temp = startTime;
-        while (!temp.isAfter(endTime.minusMinutes(15))) {
-            availableSlots.add(temp.toString());
-            temp = temp.plusMinutes(15);
-        }
-
-        // Reschedule using urgency-based priority
-        PriorityQueue<Appointment> queue = new PriorityQueue<>(Comparator.comparingInt(a -> {
-            switch (a.getUrgency().toLowerCase()) {
-                case "high": return 1;
-                case "medium": return 2;
-                case "low": return 3;
-                default: return 4;
+        if (startTime != null && endTime != null) {
+            List<String> availableSlots = new ArrayList<>();
+            LocalTime temp = startTime;
+            while (!temp.isAfter(endTime.minusMinutes(15))) {
+                availableSlots.add(temp.toString());
+                temp = temp.plusMinutes(15);
             }
-        }));
-        queue.addAll(sameSessionAppointments);
 
-        List<Appointment> updated = new ArrayList<>();
-        int i = 0;
-        while (!queue.isEmpty() && i < availableSlots.size()) {
-            Appointment a = queue.poll();
-            a.setTimeSlot(availableSlots.get(i));
-            a.setQueueNumber(i + 1);
-            updated.add(a);
-            i++;
+            // Use custom PriorityQueueX
+            PriorityQueueX queue = new PriorityQueueX(100);
+            for (Appointment a : sameSessionAppointments) {
+                queue.insert(a);
+            }
+
+            List<Appointment> updated = new ArrayList<>();
+            int i = 0;
+            while (!queue.isEmpty() && i < availableSlots.size()) {
+                Appointment a = queue.remove();
+                a.setTimeSlot(availableSlots.get(i));
+                a.setQueueNumber(i + 1);
+                updated.add(a);
+                i++;
+            }
+
+            // Replace old same-session appointments with updated ones
+            allAppointments.removeIf(a -> a.getDoctorName().equals(doctorName) && a.getDate().equals(date));
+            allAppointments.addAll(updated);
         }
 
-        // Replace old session data
-        allAppointments.removeIf(a -> a.getDoctorName().equals(doctorName) && a.getDate().equals(date));
-        allAppointments.addAll(updated);
-
-        // Save updated list
         AppointmentUtil.saveAppointments(filePath, allAppointments);
 
-        response.sendRedirect("MyAppointmentsServlet");
+        if ("main".equals(role) || "standard".equals(role)) {
+            response.sendRedirect("payment.jsp");
+        } else {
+            response.sendRedirect("MyAppointmentsServlet");
+        }
     }
 }

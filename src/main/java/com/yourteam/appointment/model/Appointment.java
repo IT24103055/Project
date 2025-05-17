@@ -1,8 +1,6 @@
 package com.yourteam.appointment.model;
 
-import java.io.Serializable;
-
-public class Appointment implements Serializable {
+public class Appointment {
     private String username;
     private String nic;
     private String doctorName;

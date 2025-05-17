@@ -13,6 +13,7 @@ import java.util.*;
 @WebServlet("/DeleteAccountServlet")
 public class DeleteAccountServlet extends HttpServlet {
 
+
     private String getPatientFilePath(HttpServletRequest request) {
         return getServletContext().getRealPath("/data/patients.txt");
     }

@@ -1,152 +1,193 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html lang="en">
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" language="java" %>
+<%@ page import="com.yourteam.appointment.utils.DoctorUtil" %>
+<%@ page import="java.io.*" %>
+
+<%
+    /*
+    if (session == null || session.getAttribute("username") == null || !"admin".equals(session.getAttribute("role"))) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+    */
+
+    String userDisplay = (String) session.getAttribute("username");
+    if (userDisplay == null || userDisplay.isEmpty()) {
+        userDisplay = "Admin";
+    }
+
+    String basePath = application.getRealPath(""); // Base path to use for file reading
+
+    String patientFile = basePath + File.separator + "data" + File.separator + "patients.txt";
+    String adminFile = basePath + File.separator + "data" + File.separator + "admins.txt";
+    String doctorFile = basePath + File.separator + "data" + File.separator + "doctors.txt"; // ✅ Corrected path
+
+    int patientCount = 0;
+    int adminCount = 0;
+    int doctorCount = DoctorUtil.getDoctorCount(doctorFile);// ✅ Uses correct path
+
+    BufferedReader reader;
+
+    File pf = new File(patientFile);
+    if (pf.exists()) {
+        reader = new BufferedReader(new FileReader(pf));
+        while (reader.readLine() != null) patientCount++;
+        reader.close();
+    }
+
+    File af = new File(adminFile);
+    if (af.exists()) {
+        reader = new BufferedReader(new FileReader(af));
+        while (reader.readLine() != null) adminCount++;
+        reader.close();
+    }
+%>
+
+
+<html>
 <head>
-        <title>Admin Dashboard - MediCare</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="css/adminDashboard.css">
-</head>
-<body>
-<div class="sidebar">
-    <h2>Admin Menu</h2>
-    <ul>
-        <li><a href="/admin/dashboard">Dashboard</a></li>
-        <li><a href="/admin/users">Manage Users</a></li>
-        <li><a href="/admin/roles">Manage Roles & Permissions</a></li>
-        <li><a href="/admin/settings">Settings</a></li>
-    </ul>
-</div>
-
-<div class="content">
-    <h1>Admin Dashboard</h1>
-
-    <section id="admin-list">
-        <h2 class="module-title">Admin Users</h2>
-        <button class="button" onclick="location.href='/admin/register'">Add New Admin</button>
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody id="admin-table-body">
-            <%-- In a real application, you would dynamically populate this table
-                 using data fetched from your backend (e.g., via JSTL tags).
-                 For now, let's keep the static example. --%>
-            <tr>
-                <td>1</td>
-                <td>admin1</td>
-                <td>admin1@example.com</td>
-                <td>Super Admin</td>
-                <td>
-                    <button class="button" onclick="editAdmin(1)">Edit</button>
-                    <button class="button" onclick="deleteAdmin(1)">Delete</button>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>editor1</td>
-                <td>editor1@example.com</td>
-                <td>Editor</td>
-                <td>
-                    <button class="button" onclick="editAdmin(2)">Edit</button>
-                    <button class="button" onclick="deleteAdmin(2)">Delete</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <section id="admin-registration" style="display:none;">
-        <h2 class="module-title">Register New Admin</h2>
-        <form id="registration-form" action="/admin/register" method="post"> <%-- Form submission URL --%>
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div>
-                <label for="role">Role:</label>
-                <select id="role" name="role">
-                    <option value="admin">Admin</option>
-                    <option value="editor">Editor</option>
-                </select>
-            </div>
-            <button type="submit" class="button">Register</button>
-        </form>
-    </section>
-
-</div>
-
-<script>
-    // Basic JavaScript for toggling sections (you'll need more for actual data handling)
-    function showSection(id) {
-        document.querySelectorAll('.content > section').forEach(section => {
-            section.style.display = 'none';
-        });
-        document.getElementById(id).style.display = 'block';
-    }
-
-    // Example functions (will need backend integration via JavaScript and potentially AJAX)
-    function editAdmin(id) {
-        alert('Edit admin with ID: ' + id);
-        // Implement logic to fetch and display admin details for editing
-    }
-
-    function deleteAdmin(id) {
-        if (confirm('Are you sure you want to delete admin with ID: ' + id + '?')) {
-            alert('Deleting admin with ID: ' + id);
-            // Implement logic to send a delete request to the backend (e.g., AJAX call)
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initially show the admin list or dashboard
-        showSection('admin-list');
+        .top-bar {
+            background-color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
 
-        // Example of how you might handle navigation (adapt to your routing)
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                const path = this.getAttribute('href');
-                if (path === '/admin/dashboard' || path === '/admin/users') {
-                    showSection('admin-list');
-                    // In a real app, you might fetch and display user data here
-                } else if (path === '/admin/register') {
-                    showSection('admin-registration');
-                }
-                // Add more conditions for other pages
-            });
-        });
+        .top-logo {
+            height: 60px;
+            width: auto;
+            margin-left: 10px;
+        }
 
-        document.getElementById('registration-form').addEventListener('submit', function(event) {
-            // In a JSP-based application, the form submission will likely trigger a
-            // server-side servlet to handle the registration logic.
-            // The basic JavaScript alert can be removed or enhanced for client-side validation.
-            console.log('Form data submitted:', Object.fromEntries(new FormData(this)));
-            alert('Registration submitted (server-side processing will handle this)');
-            // After successful registration (handled server-side), you might redirect
-            // the user or update the admin list.
-        });
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
-        // In a real application, you would fetch admin data from your backend
-        // (likely using JSTL tags within the JSP or via AJAX calls)
-        // and dynamically populate the 'admin-table-body'.
-    });
-</script>
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .navbar .nav-link:hover {
+            color: #ffc107 !important;
+            text-decoration: underline;
+        }
+
+        .dashboard-box {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .dashboard-box:hover {
+            transform: scale(1.03);
+        }
+
+        .dashboard-box h1 {
+            font-size: 48px;
+            color: #007bff;
+        }
+
+        .footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Admin Top Bar -->
+<div class="top-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="logo-title d-flex align-items-center">
+            <h2 style="margin: 0;">MediCare</h2>
+            <img src="images/logo.jpg" alt="Logo" class="top-logo">
+        </div>
+
+        <div class="dropdown">
+            <a class="dropdown-toggle d-flex align-items-center"
+               href="#"
+               id="adminDropdown"
+               role="button"
+               data-toggle="dropdown"
+               aria-haspopup="true"
+               aria-expanded="false">
+                <img src="images/user.jpg" class="profile-pic mr-2" alt="Admin Profile">
+                <%= userDisplay %>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown">
+                <a class="dropdown-item" href="AdminProfile.jsp">Profile</a>
+                <a class="dropdown-item" href="LogoutServlet">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Admin Dashboard</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="AdminManagement.jsp">Admin Management</a></li>
+            <li class="nav-item"><a class="nav-link" href="doctormanage.jsp">Doctor Management</a></li>
+            <li class="nav-item"><a class="nav-link" href="paymentsearch.jsp">Payment Management</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Dashboard Boxes -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 mb-4">
+            <div class="dashboard-box">
+                <h5>Registered Patients</h5>
+                <h1><%= patientCount %></h1>
+            </div>
+        </div>
+        <div class="col-md-5 mb-4">
+            <div class="dashboard-box">
+                <h5>Registered Doctors</h5>
+                <h1><%= doctorCount %></h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="dashboard-box">
+                <h5>Registered Admins</h5>
+                <h1><%= adminCount %></h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer mt-auto">
+    <div class="container">
+        <p>&copy; 2025 MediCare Medical Appointment System. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

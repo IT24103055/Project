@@ -1,104 +1,88 @@
+<%@ page import="java.util.*, java.io.*" %>
+<%@ page import="com.yourteam.appointment.model.Admin" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<%
+    List<Admin> admins = new ArrayList<>();
+    String filePath = application.getRealPath("/data/admins.txt");
+    File file = new File(filePath);
+
+    if (file.exists()) {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split("\\|");
+            if (parts.length == 6) {
+                admins.add(new Admin(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]));
+            }
+        }
+        reader.close();
+    }
+
+    request.setAttribute("admins", admins);
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Patient Dashboard - MediCare</title>
+    <title>Admin Users</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/AdminUsers.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .top-logo { width: 50px; margin-left: 10px; }
+        .profile-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .admin-navbar { background-color: #343a40; padding: 10px 0; }
+        .admin-navbar a { color: white; margin: 0 15px; font-weight: 500; }
+        .admin-navbar a:hover { text-decoration: underline; }
+        .container { flex: 1; }
+        .footer-section { background-color: #343a40; color: #ffffff; padding: 20px 0; text-align: center; }
+    </style>
 </head>
 <body>
+<%@ include file="includes/admintopbar.jsp" %>
+<%@ include file="includes/adminavbar.jsp" %>
 
-<!-- Header -->
-<div class="top-bar">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="logo-title d-flex align-items-center">
-            <h2 style="margin: 0;">MediCare</h2>
-            <img src="images/medical-heart-logo-icon-vector-260nw-2477158081.webp" alt="Logo" class="top-logo">
-        </div>
-    </div>
+<div class="container mt-4">
+    <h4 class="text-center font-weight-bold mb-4">Registered Admin Users</h4>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>NIC</th>
+            <th>Gender</th>
+            <th>Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:choose>
+            <c:when test="${not empty admins}">
+                <c:forEach var="admin" items="${admins}">
+                    <tr>
+                        <td>${admin.name}</td>
+                        <td>${admin.email}</td>
+                        <td>${admin.nic}</td>
+                        <td>${admin.gender}</td>
+                        <td>${admin.role}</td>
+                    </tr>
+                </c:forEach>
+            </c:when>
+            <c:otherwise>
+                <tr><td colspan="5" class="text-center">No admins found.</td></tr>
+            </c:otherwise>
+        </c:choose>
+        </tbody>
+    </table>
 </div>
-
-<%@ include file="includes/navbar.jsp" %>
-
-<div class="content">
-    <section id="admin-list">
-        <div class="module-title">
-            <h4 class="mb-4 font-weight-bold text-center">Admin Users</h4>
-        </div>
-
-        <table>
-            <thead>
-            <tr>
-                <th>Full Name</th>
-                <th>Email Address</th>
-                <th>NIC</th>
-                <th>Gender</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody id="admin-table-body">
-            <tr>
-                <td>admin1</td>
-                <td>admin1@example.com</td>
-                <td>200281403343</td>
-                <td>male</td>
-                <td class="action-buttons">
-                    <button class="button" onclick="editAdmin(1)">
-                        <i class="fa-solid fa-pen"></i> Edit
-                    </button>
-                    <button class="button" onclick="deleteAdmin(1)">
-                        <i class="fa-solid fa-trash"></i> Delete
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>admin2</td>
-                <td>admin2@example.com</td>
-                <td>200471204432</td>
-                <td>female</td>
-                <td class="action-buttons">
-                    <button class="button" onclick="editAdmin(2)">
-                        <i class="fa-solid fa-pen"></i> Edit
-                    </button>
-                    <button class="button" onclick="deleteAdmin(2)">
-                        <i class="fa-solid fa-trash"></i> Delete
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
-</div>
-
-<script>
-    function editAdmin(id) {
-        alert("Editing admin with ID: " + id);
-    }
-
-    function deleteAdmin(id) {
-        const confirmDelete = confirm("Are you sure you want to delete admin ID " + id + "?");
-        if (confirmDelete) {
-            alert("Admin " + id + " deleted.");
-        }
-    }
-</script>
-
-<%@ include file="includes/footer.jsp" %>
-
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<script>
-    document.querySelector("form").addEventListener("submit", function (e) {
-        const password = document.getElementById("password");
-        const confirm = document.getElementById("confirm");
-        if (password && confirm && password.value !== confirm.value) {
-            e.preventDefault();
-            alert("Passwords do not match. Please try again.");
-        }
-    });
-</script>
+<%@ include file="includes/adminfooter.jsp" %>
 
 </body>
 </html>

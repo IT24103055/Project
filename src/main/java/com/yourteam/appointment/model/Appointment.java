@@ -59,11 +59,7 @@ public class Appointment {
     public boolean isPaid() { return paid; }
     public void setPaid(boolean paid) { this.paid = paid; }
 
-    // Summary
-    public String getSummary() {
-        return String.format("Doctor: %s (%s) | Date: %s | Time: %s | Urgency: %s | Fee: %.2f | Paid: %s",
-                doctorName, specialization, date, timeSlot, urgency, fee, paid ? "Yes" : "No");
-    }
+
 
     // Convert to file string
     public String toFileString() {

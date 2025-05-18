@@ -1,88 +1,110 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.*, java.io.*" %>
+<%@ page import="com.yourteam.appointment.model.*" %>
+<%@ page import="com.yourteam.appointment.utils.FeedbackUtil" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Feedback Manager - MediCare</title>
+    <title>Delete Feedback - MediCare</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/DeleteFeedback.css">
-    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .top-logo { width: 50px; margin-left: 10px; }
+        .profile-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .admin-navbar { background-color: #343a40; padding: 10px 0; }
+        .admin-navbar a { color: white; margin: 0 15px; font-weight: 500; }
+        .admin-navbar a:hover { text-decoration: underline; }
+        .top-bar {
+            background-color: white;
+            padding:25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            flex: 1 0 auto;
+        }
+        .footer-section {
+            flex-shrink: 0;
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 30px 0;
+            text-align: center;
+            border-top: 1px solid #0056b3;
+        }
+        .footer-section a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .footer-section a:hover {
+            text-decoration: underline;
+        }
+        .table thead th {
+            background-color: #343a40;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="top-bar">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="logo-title d-flex align-items-center">
-            <h2 style="margin: 0;">MediCare</h2>
-            <img src="images/medical-heart-logo-icon-vector-260nw-2477158081.webp" alt="Logo" class="top-logo">
-        </div>
-    </div>
+<%@ include file="includes/admintopbar.jsp" %>
+<%@ include file="includes/adminavbar.jsp" %>
+
+<div class="container mt-5">
+    <h4 class="text-center font-weight-bold mb-4">All Feedback</h4>
+
+    <c:if test="${not empty errorMessage}">
+        <div class="alert alert-danger text-center">${errorMessage}</div>
+    </c:if>
+    <c:if test="${not empty successMessage}">
+        <div class="alert alert-success text-center">${successMessage}</div>
+    </c:if>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Given By</th>
+            <th>About</th>
+            <th>Message</th>
+            <th>Rating</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            String filePath = application.getRealPath("/data/feedback.txt");
+            List<Feedback> feedbacks = FeedbackUtil.getAllFeedback(filePath);
+
+            for (Feedback f : feedbacks) {
+                String type = (f instanceof DoctorFeedback) ? "Doctor" : "System";
+                String about = (f instanceof DoctorFeedback) ? ((DoctorFeedback) f).getDoctorName() : "System";
+        %>
+        <tr>
+            <td><%= type %></td>
+            <td><%= f.getUsername() %></td>
+            <td><%= about %></td>
+            <td><%= f.getMessage() %></td>
+            <td><%= f.getRating() %></td>
+            <td>
+                <form method="post" action="AdminDeleteFeedbackServlet">
+                    <input type="hidden" name="fullLine" value="<%= f.toFileString() %>">
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        <% } %>
+        </tbody>
+    </table>
 </div>
 
-<%@ include file="includes/navbar.jsp" %>
-
-<div class="content">
-    <section id="admin-list">
-        <div class="module-title">
-            <h4 class="mb-4 font-weight-bold text-center">User Feedback</h4>
-        </div>
-
-        <table>
-            <thead>
-            <tr>
-                <th>Username</th>
-                <th>Feedback</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody id="admin-table-body">
-            <tr>
-            <tr id="feedback-1">
-                <td>user1</td>
-                <td>Love the new features!</td>
-                <td><button class="delete-btn" onclick="deleteFeedback(1)"><i class="fa-solid fa-trash"></i> Delete</button></td>
-            </tr>
-            <tr>
-            <tr id="feedback-2">
-                <td>user2</td>
-                <td>Service was a bit slow today.</td>
-                <td><button class="delete-btn" onclick="deleteFeedback(2)"><i class="fa-solid fa-trash"></i> Delete</button></td>
-
-            </tr>
-            </tbody>
-        </table>
-    </section>
-</div>
-
-<script>
-    function deleteFeedback(id) {
-        const confirmed = confirm("Are you sure you want to delete this feedback?");
-        if (confirmed) {
-            const row = document.getElementById("feedback-" + id);
-            row.remove();
-            document.getElementById("message").textContent = `✅ Feedback ID ${id} deleted successfully.`;
-            setTimeout(() => {
-                document.getElementById("message").textContent = "";
-            }, 3000);
-        }
-    }
-</script>
-
-<%@ include file="includes/footer.jsp" %>
-
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<script>
-    document.querySelector("form").addEventListener("submit", function (e) {
-        const password = document.getElementById("password");
-        const confirm = document.getElementById("confirm");
-        if (password && confirm && password.value !== confirm.value) {
-            e.preventDefault();
-            alert("Passwords do not match. Please try again.");
-        }
-    });
-</script>
+<%@ include file="includes/adminfooter.jsp" %>
 
 </body>
 </html>

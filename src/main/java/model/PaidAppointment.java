@@ -23,4 +23,3 @@ public class PaidAppointment extends Appointment {
         System.out.println("Amount Paid: Rs. " + getFee());
     }
 }
-

@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <!-- Top Header Bar -->
 <div class="top-bar">
     <div class="container d-flex justify-content-between align-items-center">

@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: learn
-  Date: 5/4/2025
-  Time: 2:54 PM
-  To change this template use File | Settings | File Templates.
---%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
@@ -22,7 +15,7 @@
     <div class="container d-flex justify-content-between align-items-center">
         <div class="logo-title d-flex align-items-center">
             <h2 style="margin: 0;">MediCare</h2>
-            <img src="images/medical-heart-logo-icon-vector-260nw-2477158081.webp" alt="Logo" class="top-logo">
+
         </div>
     </div>
 </div>
@@ -46,9 +39,6 @@
             <input type="text" class="form-control" id="fullname" name="fullname" required>
         </div>
 
-
-
-
         <div class="form-group">
             <label for="email">Email Address</label>
             <input type="email" class="form-control" id="email" name="email" required>
@@ -69,15 +59,7 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="text" class="form-control" id="age" name="age" required>
-        </div>
 
-        <div class="form-group">
-            <label for="phone">Phone Number</label>
-            <input type="text" class="form-control" id="phone" name="phone" required placeholder = "e.g. 0712345678">
-        </div>
 
         <div class="form-group">
             <label for="password">Password</label>

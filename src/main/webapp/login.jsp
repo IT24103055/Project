@@ -16,7 +16,7 @@
             width: auto;
             margin-left: 10px;
         }
-        .login-box {
+
             max-width: 500px;
             margin: 60px auto;
             border: 1px solid #ddd;
@@ -102,13 +102,7 @@
 
 <div class="login-box shadow-sm">
     <h4 class="login-title mb-3">Sign in</h4>
-    <p class="text-muted">Please enter your NIC to sign in.</p>
 
-    <form action="<%= request.getContextPath() %>/LoginServlet" method="post">
-
-        <div class="form-group">
-            <label for="username">NIC</label>
-            <input type="text" class="form-control" id="username" name="nic" placeholder="Enter your NIC" required>
         </div>
 
         <div class="form-group">

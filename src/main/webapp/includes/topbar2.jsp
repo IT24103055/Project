@@ -12,7 +12,7 @@ userDisplay = "User";
     <div class="container d-flex justify-content-between align-items-center">
         <div class="logo-title d-flex align-items-center">
             <h2 style="margin: 0;">MediCare</h2>
-            <img src="images/medical-heart-logo-icon-vector-260nw-2477158081.webp" alt="Logo" class="top-logo">
+
         </div>
 
         <div class="dropdown">
@@ -23,7 +23,7 @@ userDisplay = "User";
                data-toggle="dropdown"
                aria-haspopup="true"
                aria-expanded="false">
-                <img src="images/icon.jpeg" class="profile-pic mr-2" alt="Profile">
+
                 <%= userDisplay %>
             </a>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
